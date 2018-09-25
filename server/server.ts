@@ -1,9 +1,11 @@
 import * as restify from 'restify'
+import {environment} from '../common/environment'
+import {Router} from '../common/router'
 
 export class Server{
     application: restify.Server
 
-    initRoutes(): Promise<any>{
+    initRoutes(routers: Router[]): Promise<any>{
         return new Promise((resolve,reject) => {
             try {
                 //creates a server
@@ -14,13 +16,12 @@ export class Server{
 
                 this.application.use(restify.plugins.queryParser())
 
-                this.application.get('/beers', (req, resp, next) => {
-                    let brejas = ['skol', 'brahma', 'budwseirs', 'da ilha']
-                    resp.json(brejas)
-                    return next()
-                })
+                //routes 
+                for(let route of routers){
+                    route.applyRoutes(this.application)
+                }
 
-                this.application.listen(3000, ()=>{
+                this.application.listen(environment.server.port, ()=>{
                     resolve(this.application)
                 })
             }catch(error){
@@ -29,7 +30,7 @@ export class Server{
         })
     }
 
-    start(): Promise<Server>{
-        return this.initRoutes().then(()=>this)
+    start(routers: Router[] = []): Promise<Server>{
+        return this.initRoutes(routers).then(()=>this)
     }
 }

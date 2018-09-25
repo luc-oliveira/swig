@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const restify = require("restify");
+const environment_1 = require("../common/environment");
 class Server {
-    initRoutes() {
+    initRoutes(routers) {
         return new Promise((resolve, reject) => {
             try {
                 //creates a server
@@ -11,12 +12,11 @@ class Server {
                     version: '1.0.0'
                 });
                 this.application.use(restify.plugins.queryParser());
-                this.application.get('/beers', (req, resp, next) => {
-                    let brejas = ['skol', 'brahma', 'budwseirs', 'da ilha'];
-                    resp.json(brejas);
-                    return next();
-                });
-                this.application.listen(3000, () => {
+                //routes 
+                for (let route of routers) {
+                    route.applyRoutes(this.application);
+                }
+                this.application.listen(environment_1.environment.server.port, () => {
                     resolve(this.application);
                 });
             }
@@ -25,8 +25,8 @@ class Server {
             }
         });
     }
-    start() {
-        return this.initRoutes().then(() => this);
+    start(routers = []) {
+        return this.initRoutes(routers).then(() => this);
     }
 }
 exports.Server = Server;
