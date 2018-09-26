@@ -1,4 +1,4 @@
-import * as restify from 'resfity'
+import * as restify from 'restify'
 import {Router} from '../common/router'
 import {User} from './users.model'
 
