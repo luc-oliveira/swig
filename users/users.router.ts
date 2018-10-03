@@ -26,17 +26,33 @@ class UsersRouter extends Router {
 		})
 
 		application.post('/users', (req, resp, next) => {
-			//resp.json({users: Users})
-			let user = new User(req.params.body)
-			user.save().then(user => {
-				if(user){
-					resp.json(user)
-					return next(false)	
-				}
+			let user = new User(req.body)
+			user.save()
+				.then(user => {
+					if(user){
+						resp.json(user)
+						return next(false)	
+					}
 
-				resp.send(404)
-				return next(false)
-			})
+					resp.send(404)
+					return next(false)
+				}).catch(error => {
+					resp.json(400, error)
+					return next(false)
+				})
+		})
+
+		application.del('/users/:id', (req, resp, next) => {
+			//resp.json({users: Users})
+			User.remove({ _id: req.params.id})
+					.exec().then((cmdResult:any)=>{
+						if(cmdResult.result.n){
+							resp.send(204)
+						}else{
+							resp.send(404)
+						}
+						return next(false)
+					}).catch(next)
 		})
 	}
 }
